@@ -1,18 +1,16 @@
 @echo off
 setlocal
-chcp 65001 >nul
 
 :: Prompt the user for the game directory
-set /p game_dir="Введіть шлях до теки з грою: "
+set /p game_dir="Enter game directory: "
 
 :: Execute the first command
 call decima.bat localization import "--project=%game_dir%" --input localization.json --output compiled_dsdc
 
 :: Ask the user if they want to create a backup
-set /p create_backup="Чи бажаєте ви створити бекап оригінального файлу? (Y/N): "
+set /p create_backup="Do you want to create a backup? (Y/N): "
 
 :: Convert the response to lowercase for consistency
-set create_backup=%create_backup:~0,1%
 set create_backup=%create_backup:~0,1%
 
 :: Execute the second command
@@ -23,6 +21,6 @@ if /i "%create_backup%"=="y" (
 )
 
 :: Wait for user input before closing
-echo Гру українізовано! Натисніть будь-яку клавішу, щоб закрити...
+echo CONGRATULATIONS...
 pause >nul
 endlocal
