@@ -1,0 +1,432 @@
+{
+  "source": "English",
+  "target": "English",
+  "files": {
+    "localized/sentences/ds_ui/ds_prototype/simpletext.core": {
+      "6dc56100-f710-8749-af3c-7c66ab418603": {
+        "source": "Exposure",
+        "target": "Exposure",
+        "show": "auto"
+      },
+      "975e3d05-a07e-f342-a943-a50297e962c4": {
+        "source": "EffectStrength",
+        "target": "EffectStrength",
+        "show": "auto"
+      },
+      "b9fe370f-8a5a-5346-8f3e-8ca6ff7c1f82": {
+        "source": "BB Pose",
+        "target": "BB Pose",
+        "show": "auto"
+      },
+      "0751bb13-8105-9e48-a59a-11f3788572b3": {
+        "source": "All",
+        "target": "All",
+        "show": "auto"
+      },
+      "91c1ff16-cfa0-b04e-9705-f90a5cedad0f": {
+        "source": "ExitPhotoMode",
+        "target": "ExitPhotoMode",
+        "show": "auto"
+      },
+      "f58e3617-907a-5545-a604-18e7a09c8111": {
+        "source": "Description here",
+        "target": "Description here",
+        "show": "auto"
+      },
+      "a81c2e18-98dc-8349-99c0-f147b5bb5a45": {
+        "source": "Logo",
+        "target": "Logo",
+        "show": "auto"
+      },
+      "79401a19-65ac-9743-8ad2-cf748ed06d6b": {
+        "source": "Size",
+        "target": "Size",
+        "show": "auto"
+      },
+      "d7bc041d-b306-7d4c-a802-c9bdcb3866ad": {
+        "source": "Brightness",
+        "target": "Brightness",
+        "show": "auto"
+      },
+      "fdfe571f-4af2-db49-96cb-c89c1c2caf90": {
+        "source": "Auto",
+        "target": "Auto",
+        "show": "auto"
+      },
+      "ee938b22-cd07-4c46-ba9e-fb8fa72f4940": {
+        "source": "Camera",
+        "target": "Camera",
+        "show": "auto"
+      },
+      "60889e23-f0f2-1740-b98f-b4201a5aaa3f": {
+        "source": "Walk toggle switch enabled. (Keyboard)",
+        "target": "Walk toggle switch enabled. (Keyboard)",
+        "show": "auto"
+      },
+      "0c79ac25-051e-3448-b2d1-c4e40200cba9": {
+        "source": "PlayerVisible",
+        "target": "PlayerVisible",
+        "show": "auto"
+      },
+      "cf59df25-3578-9e44-9c17-354c194a17f1": {
+        "source": "Near Lake Knot City",
+        "target": "Near Lake Knot City",
+        "show": "auto"
+      },
+      "3649f830-ef06-2248-a29c-ea8503a02fa5": {
+        "source": "New Game",
+        "target": "New Game",
+        "show": "auto"
+      },
+      "4a334831-e390-3941-b99c-cc0eed29f477": {
+        "source": "AngleOfView",
+        "target": "AngleOfView",
+        "show": "auto"
+      },
+      "0d4bc831-a003-b242-b656-5e6d99636fdd": {
+        "source": "ColorEffect",
+        "target": "ColorEffect",
+        "show": "auto"
+      },
+      "d2e43938-a4c3-614b-9c31-d67fd103c381": {
+        "source": "ADS toggle switching enabled (Keyboard)",
+        "target": "ADS toggle switching enabled (Keyboard)",
+        "show": "auto"
+      },
+      "42264738-b0f7-c041-9eda-b859c6fac408": {
+        "source": "Angle X",
+        "target": "Angle X",
+        "show": "auto"
+      },
+      "8647b33b-eac3-d04f-a155-9859d7aca118": {
+        "source": "Brace toggle switching enabled (pad)",
+        "target": "Brace toggle switching enabled (pad)",
+        "show": "auto"
+      },
+      "bffe513e-aef5-4d4b-836d-95f266b3b187": {
+        "source": "Load",
+        "target": "Load",
+        "show": "auto"
+      },
+      "d5c8a042-76d3-0448-99d8-49c8e4bd3fc3": {
+        "source": "SAM　Focus",
+        "target": "SAM　Focus",
+        "show": "auto"
+      },
+      "f50fe242-706a-5e40-8b0b-06580643f487": {
+        "source": "Desc",
+        "target": "Desc",
+        "show": "auto"
+      },
+      "2632db44-d687-9f49-a300-ed2ee47292c7": {
+        "source": "BB Expression",
+        "target": "BB Expression",
+        "show": "auto"
+      },
+      "06b6a447-830e-b245-b126-390769504f30": {
+        "source": "Expression_Pose",
+        "target": "Expression_Pose",
+        "show": "auto"
+      },
+      "7727be47-2226-a54c-8588-480a28dc259e": {
+        "source": "Sprint toggle switching enabled (pad)",
+        "target": "Sprint toggle switching enabled (pad)",
+        "show": "auto"
+      },
+      "d2015c4b-cad8-e34f-914d-92d08d0ade08": {
+        "source": "DepthOfField",
+        "target": "DepthOfField",
+        "show": "auto"
+      },
+      "97f11f59-2cf8-3f46-89ce-2849eb542e90": {
+        "source": "KeyAssign Settings for PC",
+        "target": "KeyAssign Settings for PC",
+        "show": "auto"
+      },
+      "9c57c85b-a8ce-ba40-b231-831dbe17f9e1": {
+        "source": "ADS toggle switching enabled (Keyboard)",
+        "target": "ADS toggle switching enabled (Keyboard)",
+        "show": "auto"
+      },
+      "84c6925e-f883-fe4b-b753-e1db65784ba2": {
+        "source": "Vignette",
+        "target": "Vignette",
+        "show": "auto"
+      },
+      "d8620462-0185-ef42-8171-f592ece7e155": {
+        "source": "Sprint toggle switch enabled. (Keyboard)",
+        "target": "Sprint toggle switch enabled. (Keyboard)",
+        "show": "auto"
+      },
+      "2f75ce62-9f01-864b-914d-7f88111f9e57": {
+        "source": "Mouse Camera Vertical Input",
+        "target": "Mouse Camera Vertical Input",
+        "show": "auto"
+      },
+      "3c3c5663-bacb-5948-ae4f-1bba9fe5b785": {
+        "source": "UIVisible",
+        "target": "UIVisible",
+        "show": "auto"
+      },
+      "92ee0466-1e4c-9f45-b9da-0b5ef094cccc": {
+        "source": "Vignette",
+        "target": "Vignette",
+        "show": "auto"
+      },
+      "7a1e1166-9bb3-a646-af31-de9aa9c175a9": {
+        "source": "Roll",
+        "target": "Roll",
+        "show": "auto"
+      },
+      "d3f12e6a-999b-e34b-905f-97b3ba516d6d": {
+        "source": "Date",
+        "target": "Date",
+        "show": "auto"
+      },
+      "dbf90370-0582-2f41-b460-9fb9d9499050": {
+        "source": "ADS toggle switching enabled (pad)",
+        "target": "ADS toggle switching enabled (pad)",
+        "show": "auto"
+      },
+      "12b39874-28a2-6a46-a008-8e52ab5eeb0f": {
+        "source": "Mouse Camera Horizontal Input",
+        "target": "Mouse Camera Horizontal Input",
+        "show": "auto"
+      },
+      "29ed1b78-1904-8c4c-a045-f9cbffbb8f99": {
+        "source": "BB Focus",
+        "target": "BB Focus",
+        "show": "auto"
+      },
+      "c093a47d-f867-2a40-aa09-b04c41ed9b31": {
+        "source": "Quick",
+        "target": "Quick",
+        "show": "auto"
+      },
+      "4df1c97e-1cf8-0145-a319-15e0d7e6110a": {
+        "source": "This is a dialogue test. Select \"Yes\" or \"No\".",
+        "target": "This is a dialogue test. Select \"Yes\" or \"No\".",
+        "show": "auto"
+      },
+      "2cedfc81-55a4-8e47-b5c7-52f77cb9abbe": {
+        "source": "Focus",
+        "target": "Focus",
+        "show": "auto"
+      },
+      "c628bf82-b368-fb4e-8f57-da27580a98d5": {
+        "source": "Grab toggle switch enabled. (Keyboard)",
+        "target": "Grab toggle switch enabled. (Keyboard)",
+        "show": "auto"
+      },
+      "66961884-5f44-1d42-9994-a241e44c70ed": {
+        "source": "IK Weight",
+        "target": "IK Weight",
+        "show": "auto"
+      },
+      "18d87086-1edd-7741-8a71-cb14a061d12c": {
+        "source": "Angle Y",
+        "target": "Angle Y",
+        "show": "auto"
+      },
+      "ef429888-1ee9-5840-8555-e00979c54241": {
+        "source": "SortColumn : {0}",
+        "target": "SortColumn : {0}",
+        "show": "auto"
+      },
+      "3fed848c-e2ca-7a40-bd66-a8d1f2003f15": {
+        "source": "FP toggle switch enabled. (Keyboard)",
+        "target": "FP toggle switch enabled. (Keyboard)",
+        "show": "auto"
+      },
+      "1f0e2893-8261-c44e-9ec6-412aefb26ea7": {
+        "source": "Grab toggle switching enabled (pad)",
+        "target": "Grab toggle switching enabled (pad)",
+        "show": "auto"
+      },
+      "9ce7a499-9607-624c-b2e2-ef6b80f42775": {
+        "source": "Brightness",
+        "target": "Brightness",
+        "show": "auto"
+      },
+      "bb237ea1-568f-c746-858f-4497c6496d99": {
+        "source": "Frame",
+        "target": "Frame",
+        "show": "auto"
+      },
+      "58f0f3a3-4f8c-7a4a-ab5f-f1ea0329004c": {
+        "source": "Cliff",
+        "target": "Cliff",
+        "show": "auto"
+      },
+      "15749daa-3be8-6c48-b0f8-91c044a3f702": {
+        "source": "Enable Hot Key",
+        "target": "Enable Hot Key",
+        "show": "auto"
+      },
+      "175254ab-df86-0d43-a1c4-a2a9aa6240d1": {
+        "source": "SAM Expression",
+        "target": "SAM Expression",
+        "show": "auto"
+      },
+      "266d5eae-792f-9945-8271-1a58c38dcd16": {
+        "source": "A Region (Temp)",
+        "target": "A Region (Temp)",
+        "show": "auto"
+      },
+      "1fb59aaf-2b3f-164b-aba6-510a8a8ed12b": {
+        "source": "Title",
+        "target": "Title",
+        "show": "auto"
+      },
+      "d880c3b0-6b88-3f49-a635-df3e3852097d": {
+        "source": "SortOrder : {0}",
+        "target": "SortOrder : {0}",
+        "show": "auto"
+      },
+      "e2c6bfb5-6447-0444-9938-b53ccbc0f1b9": {
+        "source": "\"No\" was selected.",
+        "target": "\"No\" was selected.",
+        "show": "auto"
+      },
+      "0f8433bc-8ce7-7845-b11c-929efb6e869a": {
+        "source": "Brace toggle switch enabled. (Keyboard)",
+        "target": "Brace toggle switch enabled. (Keyboard)",
+        "show": "auto"
+      },
+      "983e05be-96ee-b746-855b-922b57b80530": {
+        "source": "VignetteStrength",
+        "target": "VignetteStrength",
+        "show": "auto"
+      },
+      "2103b0c0-f991-1343-a2a4-7b7754766809": {
+        "source": "Diaphragm",
+        "target": "Diaphragm",
+        "show": "auto"
+      },
+      "c59c52cb-3e98-eb46-b62e-985e058ce94c": {
+        "source": "DepthOfField",
+        "target": "DepthOfField",
+        "show": "auto"
+      },
+      "6839cacc-33e8-d443-8d16-493b7e0d978c": {
+        "source": "Options",
+        "target": "Options",
+        "show": "auto"
+      },
+      "e116e3d3-0744-434b-a077-fc47fde43ce6": {
+        "source": "Breath stop toggle switch enabled. (Keyboard)",
+        "target": "Breath stop toggle switch enabled. (Keyboard)",
+        "show": "auto"
+      },
+      "05222fd7-eed2-ef43-9901-5857e16de552": {
+        "source": "Prototype Test",
+        "target": "Prototype Test",
+        "show": "auto"
+      },
+      "52ad8ddd-9187-e243-9fae-a0ce9de2fe50": {
+        "source": "Manual",
+        "target": "Manual",
+        "show": "auto"
+      },
+      "dab89be1-4156-2a45-b287-bb4811290fd4": {
+        "source": "Waiting for KeyAssign......",
+        "target": "Waiting for KeyAssign......",
+        "show": "auto"
+      },
+      "2966a7e3-81f1-4f43-82de-cf7f50f28329": {
+        "source": "Asc",
+        "target": "Asc",
+        "show": "auto"
+      },
+      "b81e66e5-3112-9f4a-a97b-b6213c0b10fb": {
+        "source": "Continue",
+        "target": "Continue",
+        "show": "auto"
+      },
+      "97ab50e8-df2d-574e-abb1-b9f053a1e3ae": {
+        "source": "Invalid SaveData.",
+        "target": "Invalid SaveData.",
+        "show": "auto"
+      },
+      "b0d8a2ec-661b-4c4a-8b36-73f935dd9767": {
+        "source": "SAM Pose",
+        "target": "SAM Pose",
+        "show": "auto"
+      },
+      "c8a084ed-d0c7-994f-bc42-15ba945e8cd5": {
+        "source": "Frame",
+        "target": "Frame",
+        "show": "auto"
+      },
+      "9f012bf7-8e3a-6948-938f-82755f1ff399": {
+        "source": "Key Assign",
+        "target": "Key Assign",
+        "show": "auto"
+      },
+      "8f8d14f9-1d29-1a41-9fee-d2d32a321cf1": {
+        "source": "\"Yes\" was selected.",
+        "target": "\"Yes\" was selected.",
+        "show": "auto"
+      }
+    },
+    "localized/sentences/ds_ui/ds_updateinfo_pc/simpletext.core": {
+      "a3ffd623-f732-ea4c-822e-645c619e9c5f": {
+        "source": "Version 1.05\nAddition of \"Cyberpunk 2077\" collaboration content.\n\nAddition of \"Cyberpunk 2077\" collaboration missions and items.\nAdditional missions and items are unlocked during story progression. ",
+        "target": "Версія 1.05\nДодано вміст колаборації з Cyberpunk 2077.\n\nДодано місії й предмети з колаборації з Cyberpunk 2077.\nДодаткові місії та предмети розблоковуються з поступом сюжету. ",
+        "show": "auto"
+      },
+      "fe4ef224-e92e-8843-b7a2-1b9e0983675d": {
+        "source": "Version 1.02\n\n・Key bind settings for \"Use/Dismount Vehicle\" can now be customized from the \"Perform Action\" and \"In Vehicle\" tabs.\n\n・Corrected an issue where some customized key bind settings would revert after restarting the game.\n\n・[Steam]\n　Corrected an issue where frame rate performance drops when using Steam Input.",
+        "target": "Версія 1.02\n\n・Призначення клавіш для дій «Кермувати / Залишити транспорт» тепер можна змінити у вкладках «Виконання дій» і «У транспорті».\n\n・Виправлено проблему, через яку деякі редаговані призначення клавіш скасовувалися після перезапуску гри.\n\n・[Steam]\n Виправлено проблему, через яку погіршувалася продуктивність під час використання введення Steam.",
+        "show": "auto"
+      }
+    },
+    "localized/sentences/ingame/ingame_shared/simpletext.core": {
+      "0f769b0b-38ef-e411-88f5-005056a2001a": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      },
+      "b1a4d820-92c9-e411-8517-005056a2001a": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      },
+      "78a74021-92c9-e411-8517-005056a2001a": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      },
+      "065e6621-92c9-e411-8517-005056a2001a": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      },
+      "31e46a21-92c9-e411-8517-005056a2001a": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      },
+      "1012a52d-e6d7-3c46-b5f4-e27e4fd6d472": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      },
+      "1a238152-0919-da44-9529-d23cceeca8e4": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      },
+      "56b0a466-ed05-a748-8188-50c176f4e1f8": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      },
+      "f3bd2bde-a93d-7040-80fb-2645c0b9ecd1": {
+        "source": ".",
+        "target": ".",
+        "show": "auto"
+      }
+    }
+  }
+}

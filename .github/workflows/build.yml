@@ -1,0 +1,64 @@
+name: Build Installer
+
+on:
+  schedule:
+    - cron: '0 6 */3 * *'  # Кожні 3 дні о 6:00 UTC
+  workflow_dispatch:         # Ручний запуск одним кліком
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Download Sources from Cloudflare R2
+        run: aws s3 cp s3://ds-localizer-sources/sources.zip sources.zip --endpoint-url https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+
+      - name: Extract Sources
+        # sources.zip must contain Sources/ and Sources_DSDC_Only/ at root
+        # They will be extracted to resources/Sources/ and resources/Sources_DSDC_Only/
+        run: Expand-Archive sources.zip -DestinationPath resources -Force
+
+      - name: Set version from Crowdin approval progress
+        run: node scripts/set-version.js
+        env:
+          CROWDIN_TOKEN: ${{ secrets.CROWDIN_TOKEN }}
+
+      - name: Build localization files (Steps 1–3)
+        run: node scripts/build-localization.js
+        env:
+          CROWDIN_TOKEN: ${{ secrets.CROWDIN_TOKEN }}
+
+      - name: Read version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $env:GITHUB_OUTPUT
+
+      - name: Build Windows installer
+        run: npm run build:win
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: "Українізатор Death Stranding v${{ steps.version.outputs.version }}"
+          body: |
+            Автоматична збірка від ${{ github.run_id }}.
+            Версія відповідає **${{ steps.version.outputs.version }}%** затверджених перекладів на Crowdin.
+          files: dist/*.exe
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
