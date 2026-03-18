@@ -51,7 +51,11 @@ jobs:
 
       - name: Read version
         id: version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $env:GITHUB_OUTPUT
+        run: |
+          $full = node -p "require('./package.json').version"
+          $parts = $full.Split('.')
+          $display = "$($parts[0]).$($parts[1])"
+          echo "version=$display" >> $env:GITHUB_OUTPUT
 
       - name: Build Windows installer
         run: npm run build:win

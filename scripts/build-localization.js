@@ -237,19 +237,48 @@ function buildDSVersion(dcLocalization) {
   return merged;
 }
 
+// ─── Patch version string ─────────────────────────────────────────────────────
+
+const VERSION_FILE_KEY = 'localized/sentences/ds_ui/ds_system/simpletext.core.2023915b-5f47-a74f-acd2-676a73382320.target';
+
+function patchVersionString(localization, displayVersion) {
+  const fileStrings = localization.files[VERSION_FILE_KEY];
+  if (!fileStrings) {
+    console.warn('patchVersionString: file key not found, skipping.');
+    return;
+  }
+
+  let patched = 0;
+  for (const [id, data] of Object.entries(fileStrings)) {
+    if (data.target && data.target.includes('Версія перекладу:')) {
+      data.target = data.target.replace(/Версія перекладу: [\d.]+/, `Версія перекладу: ${displayVersion}`);
+      patched++;
+    }
+  }
+
+  console.log(`patchVersionString: patched ${patched} string(s) → "Версія перекладу: ${displayVersion}"`);
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
+  // Read display version from package.json (written by set-version.js, e.g. "0.40.0" → "0.40")
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+  const displayVersion = pkg.version.split('.').slice(0, 2).join('.');
+  console.log(`Display version: ${displayVersion}`);
+
   const csvText = await exportFromCrowdin();
 
   const dcLocalization = csvToJSON(csvText);
+  patchVersionString(dcLocalization, displayVersion);
   const dcPath = path.join(OUTPUT_DIR, 'localization.json');
   fs.writeFileSync(dcPath, JSON.stringify(dcLocalization, null, 2), 'utf8');
   console.log(`Wrote: ${dcPath}`);
 
   const dsLocalization = buildDSVersion(dcLocalization);
+  patchVersionString(dsLocalization, displayVersion);
   const dsPath = path.join(OUTPUT_DIR, 'localization_ds_not_dc.json');
   fs.writeFileSync(dsPath, JSON.stringify(dsLocalization, null, 2), 'utf8');
   console.log(`Wrote: ${dsPath}`);
