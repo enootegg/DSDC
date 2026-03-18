@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Українізатор Death Stranding</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Українізатор Death Stranding</h1>
+      </header>
+
+      <main id="install-form">
+        <div class="form-group">
+          <label for="game-version">Виберіть версію гри:</label>
+          <div class="custom-select" id="game-version-select">
+            <div class="select-trigger input-field">
+              <span id="selected-version">Death Stranding Director's Cut</span>
+              <svg
+                class="select-arrow"
+                width="12"
+                height="8"
+                viewBox="0 0 12 8"
+              >
+                <path fill="#ff9d00" d="M1 1l5 5 5-5" />
+              </svg>
+            </div>
+            <div class="select-options hidden">
+              <div class="select-option" data-value="dc">
+                Death Stranding Director's Cut
+              </div>
+              <div class="select-option" data-value="ds">Death Stranding</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="game-dir">Тека з грою:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="game-dir"
+              class="input-field"
+              placeholder="Автоматично визначається..."
+              readonly
+            />
+            <button id="browse-btn" class="btn btn-secondary">Огляд</button>
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <div class="backup-checkbox-container">
+            <input type="checkbox" id="create-backup" checked />
+            <label for="create-backup" class="create-backup">
+              <span>Створити бекап оригінального файлу</span>
+            </label>
+          </div>
+        </div>
+
+        <button id="install-btn" class="btn btn-primary">
+          Українізувати гру
+        </button>
+      </main>
+
+      <div id="progress-view" class="hidden">
+        <div class="progress-content">
+          <p id="progress-text">Українізація...</p>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="success-view" class="hidden">
+        <div class="success-content">
+          <svg class="success-icon" viewBox="0 0 52 52">
+            <circle class="success-icon-background" cx="26" cy="26" r="25" />
+            <circle
+              class="success-icon-circle"
+              cx="26"
+              cy="26"
+              r="25"
+              fill="none"
+            />
+            <path
+              class="success-icon-check"
+              fill="none"
+              d="M14.1 27.2l7.1 7.2 16.7-16.8"
+            />
+          </svg>
+          <p>Українізація успішна!</p>
+          <button id="close-btn" class="btn btn-primary">Закрити</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
