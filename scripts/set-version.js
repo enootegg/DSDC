@@ -56,7 +56,7 @@ async function main() {
   }
 
   const progress = body.data[0].data.approvalProgress;
-  const version = `0.${progress}`;
+  const version = `0.${progress}.0`;
 
   console.log(`Approval progress: ${progress}% → version: ${version}`);
 
