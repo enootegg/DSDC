@@ -2,11 +2,11 @@ name: Build Installer
 
 on:
   schedule:
-    - cron: '0 6 */3 * *'  # Кожні 3 дні о 6:00 UTC
-  workflow_dispatch:         # Ручний запуск одним кліком
+    - cron: "0 6 */3 * *" # Кожні 3 дні о 6:00 UTC
+  workflow_dispatch: # Ручний запуск одним кліком
   push:
     branches:
-      - test/ci-cd           # Тимчасово для тестування
+      - main
 
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install dependencies
         run: npm install
@@ -35,8 +35,6 @@ jobs:
           AWS_DEFAULT_REGION: auto
 
       - name: Extract Sources
-        # resources.zip must contain Sources/ and Sources_DSDC_Only/ at root
-        # They will be extracted to resources/Sources/ and resources/Sources_DSDC_Only/
         run: Expand-Archive resources.zip -DestinationPath resources -Force
 
       - name: Set version from Crowdin approval progress
