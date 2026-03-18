@@ -8,8 +8,8 @@ let mainWindow;
 // Створення головного вікна
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 500,
-    height: 486,
+    width: 670,
+    height: 514,
     resizable: false,
     autoHideMenuBar: true, // Приховати меню
     title: "Українізатор Death Stranding", // Назва вікна
