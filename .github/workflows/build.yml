@@ -26,16 +26,16 @@ jobs:
         run: npm install
 
       - name: Download Sources from Cloudflare R2
-        run: aws s3 cp s3://ds-localizer-sources/sources.zip sources.zip --endpoint-url https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        run: aws s3 cp s3://ds-localizer-sources/resources.zip resources.zip --endpoint-url https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: auto
 
       - name: Extract Sources
-        # sources.zip must contain Sources/ and Sources_DSDC_Only/ at root
+        # resources.zip must contain Sources/ and Sources_DSDC_Only/ at root
         # They will be extracted to resources/Sources/ and resources/Sources_DSDC_Only/
-        run: Expand-Archive sources.zip -DestinationPath resources -Force
+        run: Expand-Archive resources.zip -DestinationPath resources -Force
 
       - name: Set version from Crowdin approval progress
         run: node scripts/set-version.js
