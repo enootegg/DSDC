@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 6 */3 * *'  # Кожні 3 дні о 6:00 UTC
   workflow_dispatch:         # Ручний запуск одним кліком
+  push:
+    branches:
+      - test/ci-cd           # Тимчасово для тестування
 
 jobs:
   build:
