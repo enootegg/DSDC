@@ -54,6 +54,7 @@ jobs:
           $parts = $full.Split('.')
           $display = "$($parts[0]).$($parts[1])"
           echo "version=$display" >> $env:GITHUB_OUTPUT
+          echo "progress=$($parts[1])" >> $env:GITHUB_OUTPUT
           $date = (Get-Date -Format "dd.MM.yyyy")
           echo "date=$date" >> $env:GITHUB_OUTPUT
 
@@ -67,7 +68,7 @@ jobs:
           name: "Українізатор Death Stranding v${{ steps.version.outputs.version }}"
           body: |
             Автоматична збірка від ${{ steps.version.outputs.date }}.
-            Версія відповідає **${{ steps.version.outputs.version }}%** затверджених перекладів на Crowdin.
+            Версія відповідає **${{ steps.version.outputs.progress }}%** затверджених перекладів на Crowdin.
           files: dist/*.exe
           make_latest: true
         env:
