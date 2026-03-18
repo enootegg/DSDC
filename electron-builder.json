@@ -1,0 +1,65 @@
+{
+  "appId": "com.dsdc.localizer",
+  "productName": "Українізатор Death Stranding",
+  "directories": {
+    "output": "dist",
+    "buildResources": "build"
+  },
+  "files": [
+    "src/**/*",
+    "!resources/Decima_win/**/*",
+    "!resources/Decima_linux/**/*"
+  ],
+  "extraResources": [
+    {
+      "from": "resources/Localization",
+      "to": "Localization"
+    },
+    {
+      "from": "resources/Sources",
+      "to": "Sources"
+    },
+    {
+      "from": "resources/Sources_DSDC_Only",
+      "to": "Sources_DSDC_Only"
+    }
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icon.ico",
+    "sign": null,
+    "extraResources": [
+      {
+        "from": "resources/Decima_win",
+        "to": "Decima"
+      }
+    ]
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icon.png",
+    "category": "Utility",
+    "extraResources": [
+      {
+        "from": "resources/Decima_linux",
+        "to": "Decima"
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
+  }
+}

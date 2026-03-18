@@ -1,0 +1,549 @@
+/* ────────────────────────────────────────────
+   Design tokens
+──────────────────────────────────────────── */
+:root {
+    --color-primary:        #007ea9;
+    --color-text-main:      #addddd;
+    --color-text-label:     #b8ccd6;
+    --color-text-dim:       #a0b7bd;
+    --color-text-success:   #4ade80;
+    --color-text-btn:       #b2ecf7;
+    --color-border:         rgba(77, 184, 216, 0.2);
+    --color-border-outer:   rgba(77, 184, 216, 0.3);
+    --color-input-bg:       rgba(29, 54, 66, 0.2);
+    --color-corner:         #c4fcf9;
+    --color-corner-success: #b5e7e7;
+    --font:                 'Roboto Condensed', 'Arial Narrow', Arial, sans-serif;
+}
+
+/* ────────────────────────────────────────────
+   Base reset
+──────────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+    font-family: var(--font);
+}
+
+/* ────────────────────────────────────────────
+   View container — fills the entire window
+──────────────────────────────────────────── */
+.ds-view {
+    position: absolute;
+    inset: 0;
+    border: 0.8px solid var(--color-border-outer);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bg-image {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
+
+.bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+}
+
+/* ────────────────────────────────────────────
+   Corner accent brackets
+──────────────────────────────────────────── */
+.corner {
+    position: absolute;
+    width: 13px;
+    height: 22px;
+    border-color: var(--color-corner);
+    border-style: solid;
+    border-width: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.corner--success {
+    border-color: var(--color-corner-success);
+}
+
+.corner-tl { top: 0;    left: 0;   border-top-width: 4.6px; }
+.corner-tr { top: 0;    right: 0;  border-top-width: 4.6px; }
+.corner-bl { bottom: 0; left: 0;   border-bottom-width: 4.6px; }
+.corner-br { bottom: 0; right: 0;  border-bottom-width: 4.6px; }
+
+/* ────────────────────────────────────────────
+   Install view content
+──────────────────────────────────────────── */
+.view-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+}
+
+.app-title {
+    font-family: var(--font);
+    font-weight: 400;
+    font-size: 36px;
+    line-height: 40px;
+    color: var(--color-text-main);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    text-shadow: 0 0 14px #007ea9;
+}
+
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.field-label {
+    font-family: var(--font);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-text-label);
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+/* ────────────────────────────────────────────
+   Input field
+──────────────────────────────────────────── */
+.input-field {
+    width: 100%;
+    height: 49.6px;
+    padding: 12px 16px;
+    background: var(--color-input-bg);
+    border: 0.8px solid var(--color-border);
+    color: var(--color-text-main);
+    font-family: var(--font);
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 24px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-field:focus {
+    border-color: rgba(77, 184, 216, 0.5);
+}
+
+/* ────────────────────────────────────────────
+   Custom select
+──────────────────────────────────────────── */
+.custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.select-arrow {
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+}
+
+.custom-select.open .select-arrow {
+    transform: rotate(180deg);
+}
+
+.select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #000;
+    z-index: 100;
+    border: 0.8px solid var(--color-border);
+}
+
+.select-option {
+    height: 49.6px;
+    padding: 12px 16px;
+    font-family: var(--font);
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--color-text-main);
+    cursor: pointer;
+    border: 0.8px solid var(--color-border);
+}
+
+.select-option.selected,
+.select-option:hover {
+    background: var(--color-primary);
+    font-weight: 400;
+    color: #b4e6e8;
+    text-shadow: 0 1px 1px #002535;
+}
+
+/* ────────────────────────────────────────────
+   Input with button
+──────────────────────────────────────────── */
+.input-with-button {
+    display: flex;
+    gap: 12px;
+}
+
+.input-with-button .input-field {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ────────────────────────────────────────────
+   Buttons
+──────────────────────────────────────────── */
+.btn {
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: opacity 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+.btn:active {
+    opacity: 0.7;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: var(--color-text-btn);
+    width: 100%;
+    padding: 16px;
+}
+
+.btn-secondary {
+    background: var(--color-input-bg);
+    border: 0.8px solid var(--color-border);
+    color: var(--color-text-label);
+    padding: 12px 16px;
+    font-weight: 400;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ────────────────────────────────────────────
+   Custom checkbox
+──────────────────────────────────────────── */
+.checkbox-group .backup-checkbox-container {
+    height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.custom-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.custom-checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkbox-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--color-primary);
+    border: 1.6px solid var(--color-primary);
+    flex-shrink: 0;
+}
+
+.check-icon {
+    width: 16px;
+    height: 16px;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.custom-checkbox-label input[type="checkbox"]:checked + .checkbox-box .check-icon {
+    opacity: 1;
+}
+
+.checkbox-text {
+    font-family: var(--font);
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-text-label);
+    letter-spacing: 0.35px;
+}
+
+/* Uninstall link (dynamically added) */
+.uninstall-link {
+    font-family: var(--font);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--color-text-label);
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    text-decoration: underline;
+    cursor: pointer;
+    display: block;
+}
+
+.uninstall-link:hover {
+    color: var(--color-text-main);
+}
+
+/* ────────────────────────────────────────────
+   Progress view
+──────────────────────────────────────────── */
+.progress-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 0 48px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#progress-text {
+    font-family: var(--font);
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 40px;
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.progress-runner {
+    width: 100%;
+    height: 5px;
+    background: rgba(153, 188, 189, 0.2);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 10px rgba(0, 126, 169, 0.4);
+}
+
+.runner-bar {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: #99bcbd;
+    box-shadow: 0 0 10px rgba(0, 126, 169, 0.7);
+    animation: runner 1.8s ease-in-out infinite;
+}
+
+@keyframes runner {
+    0%   { left: 0%;   width: 0%; }
+    30%  { left: 0%;   width: 50%; }
+    70%  { left: 50%;  width: 50%; }
+    100% { left: 100%; width: 0%; }
+}
+
+/* ────────────────────────────────────────────
+   Success view — DS delivery order style
+──────────────────────────────────────────── */
+.success-content {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Inner wrapper that grows to fill space, pushing button to bottom */
+.success-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+}
+
+/* Order header row */
+.order-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.order-icon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    display: block;
+}
+
+.order-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+}
+
+.order-subtitle {
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1;
+    color: #b5e7e7;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.order-title {
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1;
+    color: #b5e7e7;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Tabs */
+.order-tabs {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.order-tab {
+    flex: 1;
+    background: #4c6363;
+    padding: 8px;
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 1;
+    color: #b5e7e7;
+    text-transform: uppercase;
+}
+
+.order-tab--likes {
+    flex: 0 0 130px;
+}
+
+/* Order rows */
+.order-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.order-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 3px;
+    width: 100%;
+}
+
+.order-row--selected {
+    background: rgba(145, 145, 0, 0.15);
+    border: 2px solid #818101;
+}
+
+.order-row-label {
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1;
+    color: #b5e7e7;
+    text-transform: uppercase;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Likes badge — arrow pointing left */
+.likes-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #005c9b;
+    width: 130px;
+    padding: 2px 8px 2px 20px;
+    flex-shrink: 0;
+    clip-path: polygon(14px 0%, 100% 0%, 100% 100%, 14px 100%, 0% 50%);
+}
+
+.likes-badge img {
+    display: block;
+    flex-shrink: 0;
+}
+
+.likes-badge span {
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1;
+    color: #b5e7e7;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ────────────────────────────────────────────
+   Utility
+──────────────────────────────────────────── */
+.hidden {
+    display: none !important;
+}

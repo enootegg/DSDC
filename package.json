@@ -1,0 +1,25 @@
+{
+  "name": "death-stranding-localizer",
+  "productName": "Українізатор Death Stranding",
+  "version": "1.0.0",
+  "description": "Українізатор Death Stranding",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "set-version": "node scripts/set-version.js",
+    "build:localization": "node scripts/build-localization.js",
+    "build:full": "node scripts/set-version.js && node scripts/build-localization.js && electron-builder --win"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0"
+  },
+  "dependencies": {
+    "regedit": "^5.1.4"
+  }
+}

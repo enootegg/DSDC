@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.env
+.claude
+
+# Генерується при збірці з Crowdin
+resources/Localization/
+
+# Застарілі скрипти та документація
+steps/
+steps.md
+
+# Скачується при збірці з Cloudflare R2
+resources/Sources/
+resources/Sources_DSDC_Only/

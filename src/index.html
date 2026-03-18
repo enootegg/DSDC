@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Українізатор Death Stranding</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ══════════════════ INSTALL VIEW ══════════════════ -->
+    <div id="install-view" class="ds-view">
+      <div
+        class="bg-image"
+        style="background-image: url(&quot;images/death-stranding.png&quot;)"
+      ></div>
+      <div class="bg-overlay"></div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+
+      <div class="view-content">
+        <h1 class="app-title">УКРАЇНІЗАТОР DEATH STRANDING</h1>
+
+        <div class="form-fields">
+          <!-- Version select -->
+          <div class="form-group">
+            <label class="field-label">ВИБЕРІТЬ ВЕРСІЮ ГРИ:</label>
+            <div class="custom-select" id="game-version-select">
+              <div class="select-trigger input-field" tabindex="0">
+                <span id="selected-version"
+                  >DEATH STRANDING DIRECTOR'S CUT</span
+                >
+                <svg
+                  class="select-arrow"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    d="M5 7.5L10 12.5L15 7.5"
+                    stroke="#addddd"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <div class="select-options hidden">
+                <div class="select-option selected" data-value="dc">
+                  DEATH STRANDING DIRECTOR'S CUT
+                </div>
+                <div class="select-option" data-value="ds">DEATH STRANDING</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game dir -->
+          <div class="form-group">
+            <label class="field-label">ТЕКА ГРИ:</label>
+            <div class="input-with-button">
+              <input
+                type="text"
+                id="game-dir"
+                class="input-field"
+                placeholder="Автоматично визначається..."
+                readonly
+              />
+              <button id="browse-btn" class="btn btn-secondary">ОГЛЯД</button>
+            </div>
+          </div>
+
+          <!-- Backup checkbox -->
+          <div class="form-group checkbox-group">
+            <div class="backup-checkbox-container">
+              <label class="custom-checkbox-label">
+                <input type="checkbox" id="create-backup" checked />
+                <span class="checkbox-box">
+                  <svg class="check-icon" viewBox="0 0 16 16" fill="none">
+                    <polyline
+                      points="3,8 7,12 13,4"
+                      stroke="#b2ecf7"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+                <span class="checkbox-text"
+                  >Створити резервну копію оригінального файлу</span
+                >
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <button id="install-btn" class="btn btn-primary">
+          УКРАЇНІЗУВАТИ ГРУ
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════ PROGRESS VIEW ══════════════════ -->
+    <div id="progress-view" class="ds-view hidden">
+      <div
+        class="bg-image"
+        style="background-image: url(&quot;images/sam.webp&quot;)"
+      ></div>
+      <div class="bg-overlay"></div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+
+      <div class="progress-content">
+        <p id="progress-text">УКРАЇНІЗАЦІЯ...</p>
+        <div class="progress-runner">
+          <div class="runner-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ SUCCESS VIEW ══════════════════ -->
+    <div id="success-view" class="ds-view hidden">
+      <div
+        class="bg-image"
+        style="background-image: url(&quot;images/sam_success.webp&quot;)"
+      ></div>
+      <div class="bg-overlay"></div>
+      <div class="corner corner-tl corner--success"></div>
+      <div class="corner corner-tr corner--success"></div>
+      <div class="corner corner-bl corner--success"></div>
+      <div class="corner corner-br corner--success"></div>
+
+      <div class="success-content">
+        <div class="success-inner">
+          <div class="order-header">
+            <img
+              class="order-icon"
+              src="images/star.svg"
+              alt=""
+              width="38"
+              height="38"
+            />
+            <div class="order-titles">
+              <div class="order-subtitle">ЗАМОВЛЕННЯ ДЛЯ СЕМА</div>
+              <div class="order-title">[ЗАМОВЛЕННЯ № 1] УКРАЇНІЗАЦІЯ</div>
+            </div>
+          </div>
+
+          <div class="order-tabs">
+            <div class="order-tab order-tab--active">ДЕТАЛІ</div>
+            <div class="order-tab order-tab--likes">УПОДОБАЙКИ</div>
+          </div>
+
+          <div class="order-rows">
+            <div class="order-row">
+              <span class="order-row-label">ХІРАЛЬНА МЕРЕЖА: АКТИВНА</span>
+              <div class="likes-badge">
+                <img src="images/like.svg" alt="" width="19" height="20" />
+                <span>242</span>
+              </div>
+            </div>
+            <div class="order-row order-row--selected">
+              <span class="order-row-label">УКРАЇНІЗАЦІЯ УСПІШНА!</span>
+              <div class="likes-badge">
+                <img src="images/like.svg" alt="" width="19" height="20" />
+                <span>1276</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="close-btn" class="btn btn-primary">ЗАКРИТИ</button>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
