@@ -191,6 +191,17 @@ ipcMain.handle("install-localization", async (event, options) => {
         }
       }
 
+      // Якщо бекап вже існує — відновити оригінал перед встановленням,
+      // щоб не накопичувались bak2, bak3 тощо
+      const binPath = path.join(gameDir, "data", "59b95a781c9170b0d13773766e27ad90.bin");
+      const backupPath = path.join(gameDir, "data", "59b95a781c9170b0d13773766e27ad90.bin.bak");
+      if (fs.existsSync(backupPath)) {
+        console.log('Existing backup found, restoring original before reinstall...');
+        if (fs.existsSync(binPath)) fs.unlinkSync(binPath);
+        fs.renameSync(backupPath, binPath);
+        console.log('Original restored from backup.');
+      }
+
       // Перша команда: localization import
       // Decima CLI v0.1.27 syntax: --option value (no equals sign)
       // Use --option=value format to avoid path splitting issues
@@ -203,11 +214,6 @@ ipcMain.handle("install-localization", async (event, options) => {
       ]);
 
       // Друга команда: repack
-      const binPath = path.join(
-        gameDir,
-        "data",
-        "59b95a781c9170b0d13773766e27ad90.bin"
-      );
 
       console.log('Binary path:', binPath);
 
