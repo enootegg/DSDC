@@ -191,10 +191,10 @@ ipcMain.handle("install-localization", async (event, options) => {
         }
       }
 
-      // Якщо бекап вже існує — відновити оригінал перед встановленням,
-      // щоб не накопичувались bak2, bak3 тощо
       const binPath = path.join(gameDir, "data", "59b95a781c9170b0d13773766e27ad90.bin");
       const backupPath = path.join(gameDir, "data", "59b95a781c9170b0d13773766e27ad90.bin.bak");
+
+      // Якщо бекап вже існує — відновити оригінал перед встановленням
       if (fs.existsSync(backupPath)) {
         console.log('Existing backup found, restoring original before reinstall...');
         if (fs.existsSync(binPath)) fs.unlinkSync(binPath);
@@ -202,9 +202,14 @@ ipcMain.handle("install-localization", async (event, options) => {
         console.log('Original restored from backup.');
       }
 
+      // Зробити бекап власноруч (до Decima), щоб контролювати ім'я файлу
+      if (createBackup) {
+        console.log('Creating backup...');
+        fs.copyFileSync(binPath, backupPath);
+        console.log('Backup created:', backupPath);
+      }
+
       // Перша команда: localization import
-      // Decima CLI v0.1.27 syntax: --option value (no equals sign)
-      // Use --option=value format to avoid path splitting issues
       await executeCommand(decimaScript, [
         "localization",
         "import",
@@ -213,24 +218,15 @@ ipcMain.handle("install-localization", async (event, options) => {
         `--output=${workingSourcesDir}`,
       ]);
 
-      // Друга команда: repack
-
+      // Друга команда: repack (без --backup, бо ми вже зробили бекап самі)
       console.log('Binary path:', binPath);
-
-      // Decima CLI v0.1.27 syntax with --option=value format to avoid path splitting
-      const repackArgs = [
+      await executeCommand(decimaScript, [
         "repack",
         "--level=NONE",
         `--project=${gameDir}`,
         binPath,
         workingSourcesDir,
-      ];
-
-      if (createBackup) {
-        repackArgs.splice(1, 0, "--backup");
-      }
-
-      await executeCommand(decimaScript, repackArgs);
+      ]);
 
       return { success: true };
     } finally {

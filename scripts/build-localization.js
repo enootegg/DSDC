@@ -89,50 +89,66 @@ async function exportFromCrowdin() {
 
 // ─── Step 2: CSV → JSON (port of parser.py) ──────────────────────────────────
 
+// Single-pass CSV parser matching Python's csv.DictReader behaviour exactly.
+// Handles: BOM, \r\n / \r / \n line endings, quoted fields with embedded
+// commas, newlines and escaped double-quotes ("").
 function parseCSV(text) {
-  const lines = [];
-  let current = '';
-  let inQuotes = false;
+  // Strip UTF-8 BOM if present (Crowdin sometimes adds it)
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  // Normalise line endings to \n (same as Python universal newlines)
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"') {
-      if (inQuotes && text[i + 1] === '"') {
-        current += '"';
-        i++;
+  const records = [];
+  let pos = 0;
+  const len = text.length;
+
+  while (pos < len) {
+    const fields = [];
+
+    // Parse one record (row)
+    recordLoop: while (true) {
+      if (text[pos] === '"') {
+        // Quoted field
+        pos++; // skip opening quote
+        let field = '';
+        while (pos < len) {
+          if (text[pos] === '"') {
+            if (text[pos + 1] === '"') {
+              field += '"'; // escaped quote
+              pos += 2;
+            } else {
+              pos++; // skip closing quote
+              break;
+            }
+          } else {
+            field += text[pos++];
+          }
+        }
+        fields.push(field);
       } else {
-        inQuotes = !inQuotes;
+        // Unquoted field — read until comma or newline or end
+        let field = '';
+        while (pos < len && text[pos] !== ',' && text[pos] !== '\n') {
+          field += text[pos++];
+        }
+        fields.push(field);
       }
-    } else if (ch === '\n' && !inQuotes) {
-      lines.push(current);
-      current = '';
-    } else if (ch === '\r' && !inQuotes) {
-      // skip \r
-    } else {
-      current += ch;
+
+      // After a field: comma → next field, newline/end → end of record
+      if (pos >= len || text[pos] === '\n') {
+        if (pos < len) pos++; // skip \n
+        break recordLoop;
+      }
+      // Must be a comma
+      pos++; // skip ','
+    }
+
+    if (fields.length > 1 || fields[0] !== '') {
+      records.push(fields);
     }
   }
-  if (current) lines.push(current);
 
-  return lines.map((line) => {
-    const fields = [];
-    let field = '';
-    let inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') {
-        if (inQ && line[i + 1] === '"') { field += '"'; i++; }
-        else inQ = !inQ;
-      } else if (ch === ',' && !inQ) {
-        fields.push(field);
-        field = '';
-      } else {
-        field += ch;
-      }
-    }
-    fields.push(field);
-    return fields;
-  });
+  return records;
 }
 
 function csvToJSON(csvText) {
