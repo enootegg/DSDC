@@ -40,9 +40,12 @@ function httpsRequest(url, options = {}) {
         resolve(httpsRequest(res.headers.location, { method: 'GET' }));
         return;
       }
-      let body = '';
-      res.on('data', (chunk) => (body += chunk));
-      res.on('end', () => resolve({ status: res.statusCode, text: body }));
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const body = Buffer.concat(chunks).toString('utf8');
+        resolve({ status: res.statusCode, text: body });
+      });
     });
     req.on('error', reject);
     if (options.body) req.write(options.body);
@@ -290,13 +293,13 @@ async function main() {
   const dcLocalization = csvToJSON(csvText);
   patchVersionString(dcLocalization, displayVersion);
   const dcPath = path.join(OUTPUT_DIR, 'localization.json');
-  fs.writeFileSync(dcPath, JSON.stringify(dcLocalization, null, 2), 'utf8');
+  fs.writeFileSync(dcPath, JSON.stringify(dcLocalization, null, 4), 'utf8');
   console.log(`Wrote: ${dcPath}`);
 
   const dsLocalization = buildDSVersion(dcLocalization);
   patchVersionString(dsLocalization, displayVersion);
   const dsPath = path.join(OUTPUT_DIR, 'localization_ds_not_dc.json');
-  fs.writeFileSync(dsPath, JSON.stringify(dsLocalization, null, 2), 'utf8');
+  fs.writeFileSync(dsPath, JSON.stringify(dsLocalization, null, 4), 'utf8');
   console.log(`Wrote: ${dsPath}`);
 
   console.log('Done! Both localization files are ready.');
