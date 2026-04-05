@@ -15,3 +15,5 @@ steps.md
 # Скачується при збірці з Cloudflare R2
 resources/Sources/
 resources/Sources_DSDC_Only/
+
+.idea

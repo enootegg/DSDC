@@ -13,7 +13,7 @@ function createWindow() {
     resizable: false,
     autoHideMenuBar: true, // Приховати меню
     title: "Українізатор Death Stranding", // Назва вікна
-    icon: path.join(__dirname, "..", "build", "icon.ico"), // Використати кастомну іконку
+    icon: path.join(__dirname, "..", "build", process.platform === "win32" ? "icon.ico" : "icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false, // Безпека
@@ -143,18 +143,28 @@ ipcMain.handle("install-localization", async (event, options) => {
 
     // Вибрати правильний скрипт
     // New version uses decima-cli.exe (native executable, no Java needed)
-    const decimaScript = isWindows
+    let decimaScript = isWindows
       ? path.join(decimaDir, "decima-cli.exe")
       : path.join(decimaDir, "bin", "decima");
+
+    // Створити тимчасову папку (потрібна і для Sources, і можливо для Decima)
+    const os = require('os');
+    const fs = require('fs');
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ds-localizer-'));
 
     // On Linux, ensure the decima script is executable
     if (!isWindows) {
       try {
-        const fs = require('fs');
         fs.chmodSync(decimaScript, 0o755);
         console.log('Set executable permissions for decima script');
       } catch (error) {
-        console.error('Warning: Could not set executable permissions:', error.message);
+        // Read-only filesystem (FUSE-mounted AppImage) — copy Decima to temp
+        console.log('Read-only FS, copying Decima to temp directory...');
+        const tmpDecima = path.join(tmpDir, 'Decima');
+        await copyDirectoryRecursive(decimaDir, tmpDecima);
+        decimaScript = path.join(tmpDecima, "bin", "decima");
+        fs.chmodSync(decimaScript, 0o755);
+        console.log('Decima copied to temp, executable permissions set');
       }
     }
 
@@ -162,11 +172,6 @@ ipcMain.handle("install-localization", async (event, options) => {
       gameVersion === "dc"
         ? path.join(localizationDir, "localization.json")
         : path.join(localizationDir, "localization_ds_not_dc.json");
-
-    // Створити тимчасову папку для Sources (AppImage read-only, треба копіювати)
-    const os = require('os');
-    const fs = require('fs');
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ds-localizer-'));
     const workingSourcesDir = path.join(tmpDir, 'Sources');
 
     console.log('Game directory:', gameDir);
@@ -174,6 +179,25 @@ ipcMain.handle("install-localization", async (event, options) => {
     console.log('Localization file:', localizationFile);
     console.log('Original Sources directory:', sourcesDir);
     console.log('Working Sources directory:', workingSourcesDir);
+
+    // На Linux: підмінити Windows Oodle DLL на Linux .so
+    // (Decima шукає oo2core_7_win64.dll, а dlopen() перевіряє ELF-заголовок, не розширення)
+    let oodleBackupPath = null;
+    let oodleDllPath = null;
+
+    if (!isWindows) {
+      const gameOodleDll = path.join(gameDir, "oo2core_7_win64.dll");
+      const oodleLinuxLib = path.join(decimaDir, "liboodle-linux.so");
+
+      if (fs.existsSync(gameOodleDll) && fs.existsSync(oodleLinuxLib)) {
+        oodleDllPath = gameOodleDll;
+        oodleBackupPath = gameOodleDll + ".linux-bak";
+        console.log('Swapping Windows Oodle DLL with Linux .so...');
+        fs.renameSync(gameOodleDll, oodleBackupPath);
+        fs.copyFileSync(oodleLinuxLib, gameOodleDll);
+        console.log('Oodle library swapped for Linux');
+      }
+    }
 
     try {
       // Скопіювати Sources в тимчасову папку
@@ -230,6 +254,17 @@ ipcMain.handle("install-localization", async (event, options) => {
 
       return { success: true };
     } finally {
+      // Відновити оригінальний Oodle DLL
+      if (oodleBackupPath && oodleDllPath) {
+        try {
+          if (fs.existsSync(oodleDllPath)) fs.unlinkSync(oodleDllPath);
+          fs.renameSync(oodleBackupPath, oodleDllPath);
+          console.log('Original Oodle DLL restored');
+        } catch (restoreError) {
+          console.error('Warning: Could not restore Oodle DLL:', restoreError.message);
+        }
+      }
+
       // Видалити тимчасову папку
       try {
         const fsPromises = require('fs').promises;
