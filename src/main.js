@@ -143,18 +143,28 @@ ipcMain.handle("install-localization", async (event, options) => {
 
     // Вибрати правильний скрипт
     // New version uses decima-cli.exe (native executable, no Java needed)
-    const decimaScript = isWindows
+    let decimaScript = isWindows
       ? path.join(decimaDir, "decima-cli.exe")
       : path.join(decimaDir, "bin", "decima");
+
+    // Створити тимчасову папку (потрібна і для Sources, і можливо для Decima)
+    const os = require('os');
+    const fs = require('fs');
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ds-localizer-'));
 
     // On Linux, ensure the decima script is executable
     if (!isWindows) {
       try {
-        const fs = require('fs');
         fs.chmodSync(decimaScript, 0o755);
         console.log('Set executable permissions for decima script');
       } catch (error) {
-        console.error('Warning: Could not set executable permissions:', error.message);
+        // Read-only filesystem (FUSE-mounted AppImage) — copy Decima to temp
+        console.log('Read-only FS, copying Decima to temp directory...');
+        const tmpDecima = path.join(tmpDir, 'Decima');
+        await copyDirectoryRecursive(decimaDir, tmpDecima);
+        decimaScript = path.join(tmpDecima, "bin", "decima");
+        fs.chmodSync(decimaScript, 0o755);
+        console.log('Decima copied to temp, executable permissions set');
       }
     }
 
@@ -162,11 +172,6 @@ ipcMain.handle("install-localization", async (event, options) => {
       gameVersion === "dc"
         ? path.join(localizationDir, "localization.json")
         : path.join(localizationDir, "localization_ds_not_dc.json");
-
-    // Створити тимчасову папку для Sources (AppImage read-only, треба копіювати)
-    const os = require('os');
-    const fs = require('fs');
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ds-localizer-'));
     const workingSourcesDir = path.join(tmpDir, 'Sources');
 
     console.log('Game directory:', gameDir);

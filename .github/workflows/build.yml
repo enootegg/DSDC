@@ -62,6 +62,10 @@ jobs:
         env:
           CROWDIN_TOKEN: ${{ secrets.CROWDIN_TOKEN }}
 
+      - name: Set executable permissions for Decima binary
+        if: runner.os == 'Linux'
+        run: chmod +x resources/Decima_linux/bin/decima
+
       - name: Build installer
         run: npx electron-builder --${{ matrix.platform }} --publish never
 
