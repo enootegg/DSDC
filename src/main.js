@@ -180,6 +180,25 @@ ipcMain.handle("install-localization", async (event, options) => {
     console.log('Original Sources directory:', sourcesDir);
     console.log('Working Sources directory:', workingSourcesDir);
 
+    // На Linux: підмінити Windows Oodle DLL на Linux .so
+    // (Decima шукає oo2core_7_win64.dll, а dlopen() перевіряє ELF-заголовок, не розширення)
+    let oodleBackupPath = null;
+    let oodleDllPath = null;
+
+    if (!isWindows) {
+      const gameOodleDll = path.join(gameDir, "oo2core_7_win64.dll");
+      const oodleLinuxLib = path.join(decimaDir, "liboodle-linux.so");
+
+      if (fs.existsSync(gameOodleDll) && fs.existsSync(oodleLinuxLib)) {
+        oodleDllPath = gameOodleDll;
+        oodleBackupPath = gameOodleDll + ".linux-bak";
+        console.log('Swapping Windows Oodle DLL with Linux .so...');
+        fs.renameSync(gameOodleDll, oodleBackupPath);
+        fs.copyFileSync(oodleLinuxLib, gameOodleDll);
+        console.log('Oodle library swapped for Linux');
+      }
+    }
+
     try {
       // Скопіювати Sources в тимчасову папку
       console.log('Copying base Sources to temp directory...');
@@ -235,6 +254,17 @@ ipcMain.handle("install-localization", async (event, options) => {
 
       return { success: true };
     } finally {
+      // Відновити оригінальний Oodle DLL
+      if (oodleBackupPath && oodleDllPath) {
+        try {
+          if (fs.existsSync(oodleDllPath)) fs.unlinkSync(oodleDllPath);
+          fs.renameSync(oodleBackupPath, oodleDllPath);
+          console.log('Original Oodle DLL restored');
+        } catch (restoreError) {
+          console.error('Warning: Could not restore Oodle DLL:', restoreError.message);
+        }
+      }
+
       // Видалити тимчасову папку
       try {
         const fsPromises = require('fs').promises;
