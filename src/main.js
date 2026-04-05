@@ -13,7 +13,7 @@ function createWindow() {
     resizable: false,
     autoHideMenuBar: true, // Приховати меню
     title: "Українізатор Death Stranding", // Назва вікна
-    icon: path.join(__dirname, "..", "build", "icon.ico"), // Використати кастомну іконку
+    icon: path.join(__dirname, "..", "build", process.platform === "win32" ? "icon.ico" : "icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false, // Безпека
