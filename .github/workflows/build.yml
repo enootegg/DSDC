@@ -15,9 +15,9 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            build_cmd: build:win
+            platform: win
           - os: ubuntu-latest
-            build_cmd: build:linux
+            platform: linux
 
     runs-on: ${{ matrix.os }}
     environment: dsdc
@@ -63,7 +63,7 @@ jobs:
           CROWDIN_TOKEN: ${{ secrets.CROWDIN_TOKEN }}
 
       - name: Build installer
-        run: npm run ${{ matrix.build_cmd }}
+        run: npx electron-builder --${{ matrix.platform }} --publish never
 
       - name: Save version info
         if: runner.os == 'Linux'
