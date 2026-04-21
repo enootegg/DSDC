@@ -11,7 +11,8 @@
     "build:linux": "electron-builder --linux",
     "set-version": "node scripts/set-version.js",
     "build:localization": "node scripts/build-localization.js",
-    "build:full": "node scripts/set-version.js && node scripts/build-localization.js && electron-builder --win"
+    "build:full": "node scripts/set-version.js && node scripts/build-localization.js && electron-builder --win",
+    "build:full:linux": "node scripts/set-version.js && node scripts/build-localization.js && electron-builder --linux"
   },
   "author": "",
   "license": "MIT",
