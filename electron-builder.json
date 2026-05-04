@@ -5,6 +5,7 @@
     "output": "dist",
     "buildResources": "build"
   },
+  "artifactName": "Death.Stranding.${version}.${ext}",
   "files": [
     "src/**/*",
     "!resources/Decima_win/**/*",
