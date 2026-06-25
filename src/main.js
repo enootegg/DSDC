@@ -4,11 +4,51 @@ const fs = require("fs");
 const { spawn } = require("child_process");
 const { detectDeathStranding, listAllSteamGames } = require("./gameDetector");
 
-let mainWindow;
-
-// Відносний шлях до локалізованого .bin файлу (однаковий для DC та DS)
-const LOCALIZED_BIN_RELATIVE = path.join("data", "59b95a781c9170b0d13773766e27ad90.bin");
+// Назва патч-архіву, в який Decima пише українізовані .core файли.
+// На Steam/EGS файл лежить у data\ і існує оригінальним.
+// На Xbox Game Pass файл лежить у packed_GDK\ і створюється з нуля.
+const PATCH_ARCHIVE_NAME = "59b95a781c9170b0d13773766e27ad90.bin";
+// Відносний шлях до локалізованого .bin (Steam/EGS: лежить у data\).
+const LOCALIZED_BIN_RELATIVE = path.join("data", PATCH_ARCHIVE_NAME);
 const BACKUP_SUFFIX = ".bak";
+
+/**
+ * Xbox Game Pass-теки мають packed_GDK\ замість data\.
+ * Перевіряємо за наявністю packed_GDK як основного маркера.
+ */
+function isXboxGameDir(gameDir) {
+  return fs.existsSync(path.join(gameDir, "packed_GDK"));
+}
+
+/**
+ * Створити junction `data` → `packed_GDK` у теці Xbox-гри.
+ * Це дозволяє Decima Workshop та решті коду використовувати шлях
+ * data\<archive>.bin без додаткових змін. Використовуємо нативний
+ * fs.symlinkSync('junction'), щоб коректно працювали шляхи з пробілами.
+ */
+function ensureXboxDataJunction(gameDir) {
+  const dataPath = path.join(gameDir, "data");
+  const packedPath = path.join(gameDir, "packed_GDK");
+
+  if (fs.existsSync(dataPath)) {
+    console.log("data\\ already exists, skipping junction creation");
+    return;
+  }
+
+  console.log(`Creating junction: ${dataPath} -> ${packedPath}`);
+  try {
+    fs.symlinkSync(packedPath, dataPath, "junction");
+    console.log("Junction created successfully");
+  } catch (err) {
+    throw new Error(
+      `Не вдалося створити junction data → packed_GDK. ` +
+      `Запустіть українізатор від імені адміністратора. ` +
+      `Деталі: ${err.message}`
+    );
+  }
+}
+
+let mainWindow;
 
 // Створення головного вікна
 function createWindow() {
@@ -31,23 +71,21 @@ function createWindow() {
 }
 
 // Розбір аргументів командного рядка (інтеграція зі сторонніми лаунчерами).
-// Підтримує /uninstall (action) та /silent (без вікна), сумісно з форматом,
-// який передає littlebit-launcher: ["/uninstall", "/SILENT", "/silent"].
+// Реагує на /uninstall (action), сумісно з форматом, який передає
+// littlebit-launcher: ["/uninstall", "/SILENT", "/silent"]. Прапор /silent
+// ігнорується (деінсталяція через CLI і так виконується без UI).
 // Опціонально приймає шлях до теки гри як позиційний аргумент.
 function parseCliArgs() {
   // У запакованому застосунку argv = [exe, ...args], у dev = [electron, script, ...args]
   const rawArgs = process.argv.slice(app.isPackaged ? 1 : 2);
 
   let uninstall = false;
-  let silent = false;
   let gameDir = null;
 
   for (const arg of rawArgs) {
     const flag = arg.toLowerCase().replace(/^--/, '/');
     if (flag === '/uninstall') {
       uninstall = true;
-    } else if (flag === '/silent' || flag === '/s') {
-      silent = true;
     } else if (!arg.startsWith('/') && !arg.startsWith('--')) {
       // Позиційний аргумент — шлях до теки гри
       try {
@@ -60,7 +98,7 @@ function parseCliArgs() {
     }
   }
 
-  return { uninstall, silent, gameDir };
+  return { uninstall, gameDir };
 }
 
 // Визначити теку гри для тихої деінсталяції, якщо її не передали аргументом.
@@ -70,8 +108,12 @@ async function resolveUninstallGameDir() {
     try {
       const result = await detectDeathStranding(version);
       if (result && result.path) {
-        const backupPath = path.join(result.path, LOCALIZED_BIN_RELATIVE) + BACKUP_SUFFIX;
-        if (fs.existsSync(backupPath)) {
+        // Xbox: встановлено = є патч у packed_GDK\ (бекапу не буває).
+        // Steam/EGS: встановлено = є .bak для відновлення оригіналу.
+        const installed = isXboxGameDir(result.path)
+          ? fs.existsSync(path.join(result.path, 'packed_GDK', PATCH_ARCHIVE_NAME))
+          : fs.existsSync(path.join(result.path, LOCALIZED_BIN_RELATIVE) + BACKUP_SUFFIX);
+        if (installed) {
           return result.path;
         }
       }
@@ -153,25 +195,58 @@ ipcMain.handle("select-directory", async () => {
   return result.filePaths[0];
 });
 
-// Перевірка наявності бекапу
+// Перевірка чи встановлено українізацію
+// На Steam/EGS — за наявністю .bak (оригінал зберігається поруч).
+// На Xbox Game Pass — за наявністю самого патч-архіву в packed_GDK\,
+// бо цей файл не існує в оригінальній установці.
 ipcMain.handle("check-backup", async (event, gameDir) => {
-  const fs = require('fs');
-  const backupPath = path.join(gameDir, 'data', '59b95a781c9170b0d13773766e27ad90.bin.bak');
+  if (isXboxGameDir(gameDir)) {
+    const patchPath = path.join(gameDir, 'packed_GDK', PATCH_ARCHIVE_NAME);
+    const installed = fs.existsSync(patchPath);
+    console.log('Xbox patch archive exists:', installed);
+    return installed;
+  }
 
+  const backupPath = path.join(gameDir, 'data', PATCH_ARCHIVE_NAME + '.bak');
   console.log('Checking for backup at:', backupPath);
   const hasBackup = fs.existsSync(backupPath);
   console.log('Backup exists:', hasBackup);
-
   return hasBackup;
 });
 
-// Спільна логіка деінсталяції: відновлює оригінальний .bin з бекапу.
-// Кидає помилку, якщо бекап не знайдено.
+// Спільна логіка деінсталяції.
+// Steam/EGS — відновити оригінал з .bak.
+// Xbox Game Pass — просто видалити патч-архів у packed_GDK\ (оригіналу не було).
 function uninstallLocalizationAtPath(gameDir) {
+  console.log('Uninstalling localization from:', gameDir);
+
+  if (isXboxGameDir(gameDir)) {
+    const patchPath = path.join(gameDir, 'packed_GDK', PATCH_ARCHIVE_NAME);
+    if (!fs.existsSync(patchPath)) {
+      throw new Error('Файл українізації не знайдено в packed_GDK.');
+    }
+    console.log('Removing Xbox patch archive:', patchPath);
+    fs.unlinkSync(patchPath);
+
+    // Прибрати junction data → packed_GDK, щоб тека повернулась у початковий стан.
+    // Видаляємо лише якщо це справді junction (а не реальна тека).
+    const dataJunction = path.join(gameDir, 'data');
+    try {
+      if (fs.existsSync(dataJunction) && fs.lstatSync(dataJunction).isSymbolicLink()) {
+        fs.rmdirSync(dataJunction);
+        console.log('Removed data junction');
+      }
+    } catch (err) {
+      console.warn('Could not remove data junction:', err.message);
+    }
+
+    console.log('Xbox localization uninstalled successfully!');
+    return;
+  }
+
   const binPath = path.join(gameDir, LOCALIZED_BIN_RELATIVE);
   const backupPath = binPath + BACKUP_SUFFIX;
 
-  console.log('Uninstalling localization...');
   console.log('Binary path:', binPath);
   console.log('Backup path:', backupPath);
 
@@ -268,7 +343,17 @@ ipcMain.handle("install-localization", async (event, options) => {
         : path.join(localizationDir, "localization_ds_not_dc.json");
     const workingSourcesDir = path.join(tmpDir, 'Sources');
 
+    // Xbox Game Pass-теки використовують packed_GDK\ замість data\.
+    // Створюємо junction data → packed_GDK один раз, далі решта коду
+    // (Decima, шляхи до .bin) працює як зі Steam-структурою.
+    const isXbox = isXboxGameDir(gameDir);
+    if (isXbox) {
+      console.log('Xbox Game Pass install detected, preparing data junction...');
+      await ensureXboxDataJunction(gameDir);
+    }
+
     console.log('Game directory:', gameDir);
+    console.log('Platform layout:', isXbox ? 'Xbox Game Pass' : 'Steam/EGS');
     console.log('Decima script:', decimaScript);
     console.log('Localization file:', localizationFile);
     console.log('Original Sources directory:', sourcesDir);
@@ -309,22 +394,32 @@ ipcMain.handle("install-localization", async (event, options) => {
         }
       }
 
-      const binPath = path.join(gameDir, "data", "59b95a781c9170b0d13773766e27ad90.bin");
-      const backupPath = path.join(gameDir, "data", "59b95a781c9170b0d13773766e27ad90.bin.bak");
+      const binPath = path.join(gameDir, "data", PATCH_ARCHIVE_NAME);
+      const backupPath = path.join(gameDir, "data", PATCH_ARCHIVE_NAME + ".bak");
 
-      // Якщо бекап вже існує — відновити оригінал перед встановленням
-      if (fs.existsSync(backupPath)) {
-        console.log('Existing backup found, restoring original before reinstall...');
-        if (fs.existsSync(binPath)) fs.unlinkSync(binPath);
-        fs.renameSync(backupPath, binPath);
-        console.log('Original restored from backup.');
-      }
+      if (isXbox) {
+        // На Xbox оригінального файлу не існує: репак створює його з нуля.
+        // На реінсталі видаляємо попередній патч, щоб Decima почала з порожнього архіву.
+        if (fs.existsSync(binPath)) {
+          console.log('Existing Xbox patch found, removing before reinstall...');
+          fs.unlinkSync(binPath);
+        }
+        // Бекап не потрібен — uninstall видаляє патч-файл і повертає теку у початковий стан.
+      } else {
+        // Якщо бекап вже існує — відновити оригінал перед встановленням
+        if (fs.existsSync(backupPath)) {
+          console.log('Existing backup found, restoring original before reinstall...');
+          if (fs.existsSync(binPath)) fs.unlinkSync(binPath);
+          fs.renameSync(backupPath, binPath);
+          console.log('Original restored from backup.');
+        }
 
-      // Зробити бекап власноруч (до Decima), щоб контролювати ім'я файлу
-      if (createBackup) {
-        console.log('Creating backup...');
-        fs.copyFileSync(binPath, backupPath);
-        console.log('Backup created:', backupPath);
+        // Зробити бекап власноруч (до Decima), щоб контролювати ім'я файлу
+        if (createBackup) {
+          console.log('Creating backup...');
+          fs.copyFileSync(binPath, backupPath);
+          console.log('Backup created:', backupPath);
+        }
       }
 
       // Перша команда: localization import

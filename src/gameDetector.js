@@ -486,6 +486,64 @@ function searchEpicManifests(manifestPath, gameFolder) {
 }
 
 /**
+ * Find Death Stranding in Xbox Game Pass (Microsoft Store)
+ * Xbox installs use `<Drive>:\XboxGames\<Folder>\Content\` with files in `packed_GDK\`
+ * instead of `data\`. We identify DC vs DS via MicrosoftGame.Config.
+ */
+function findXboxGame(version) {
+  console.log(`Searching in Xbox Game Pass for: ${version}`);
+
+  if (process.platform !== 'win32') {
+    return null;
+  }
+
+  const drives = getWindowsDrives();
+
+  for (const drive of drives) {
+    const xboxRoot = path.join(drive + '\\', 'XboxGames');
+    if (!fs.existsSync(xboxRoot)) continue;
+
+    let subFolders;
+    try {
+      subFolders = fs.readdirSync(xboxRoot);
+    } catch (err) {
+      console.error(`Error reading ${xboxRoot}:`, err.message);
+      continue;
+    }
+
+    for (const subFolder of subFolders) {
+      const contentPath = path.join(xboxRoot, subFolder, 'Content');
+      const configPath = path.join(contentPath, 'MicrosoftGame.Config');
+      const packedDir = path.join(contentPath, 'packed_GDK');
+
+      if (!fs.existsSync(configPath) || !fs.existsSync(packedDir)) continue;
+
+      let configContent;
+      try {
+        configContent = fs.readFileSync(configPath, 'utf8');
+      } catch (err) {
+        continue;
+      }
+
+      // Identity Name like "KOJIMAPRODUCTIONSCo.Ltd.DSDC" or similar for DS
+      const identityMatch = configContent.match(/<Identity[^>]*Name="([^"]+)"/i);
+      if (!identityMatch) continue;
+
+      const identity = identityMatch[1].toUpperCase();
+      const isDC = /DSDC|DIRECTOR/.test(identity);
+
+      if ((version === 'dc' && isDC) || (version === 'ds' && !isDC && /DEATH|STRANDING|DS/.test(identity))) {
+        console.log(`Found Xbox install: ${contentPath} (identity: ${identityMatch[1]})`);
+        return contentPath;
+      }
+    }
+  }
+
+  console.log('Game not found in Xbox Game Pass');
+  return null;
+}
+
+/**
  * Auto-detect Death Stranding installation
  * @param {string} version - 'dc' or 'ds'
  */
@@ -537,6 +595,14 @@ async function detectDeathStranding(version) {
       console.log(`=== Game found! ===\n`);
       return { platform: 'Epic Games', path: epicPath };
     }
+  }
+
+  // Search in Xbox Game Pass
+  console.log('\n--- Searching in Xbox Game Pass ---');
+  const xboxPath = findXboxGame(version);
+  if (xboxPath) {
+    console.log(`=== Game found! ===\n`);
+    return { platform: 'Xbox Game Pass', path: xboxPath };
   }
 
   console.log('=== Game not found ===\n');
@@ -596,6 +662,7 @@ module.exports = {
   getSteamLibraries,
   findSteamGame,
   findEpicGame,
+  findXboxGame,
   listAllSteamGames,
   listSteamCommonFolders
 };
