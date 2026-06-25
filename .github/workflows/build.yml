@@ -128,3 +128,37 @@ jobs:
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: dsdc
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Read version info
+        id: version
+        run: |
+          echo "version=$(cat artifacts/version-info/version.txt)" >> "$GITHUB_OUTPUT"
+          echo "progress=$(cat artifacts/version-info/progress.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Package installers into archives
+        run: |
+          mkdir -p build
+          (cd artifacts/dist-Windows && zip -r "$GITHUB_WORKSPACE/build/windows.zip" .)
+          (cd artifacts/dist-Linux && zip -r "$GITHUB_WORKSPACE/build/linux.zip" .)
+
+      - name: Deploy to LBK Launcher
+        uses: Vadko/lbk-deploy-translation@v1
+        with:
+          api-token: ${{ secrets.LBK_TOKEN }}
+          game-id: ${{ vars.LBK_GAME_ID }}
+          version: ${{ steps.version.outputs.version }}
+          archive: build/windows.zip
+          steam-linux: build/linux.zip
+          status: completed
+          translation-progress: ${{ steps.version.outputs.progress }}

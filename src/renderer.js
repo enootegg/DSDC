@@ -25,13 +25,7 @@ selectTrigger.addEventListener('click', () => {
 const optionElements = selectOptions.querySelectorAll('.select-option');
 optionElements.forEach(option => {
     option.addEventListener('click', async () => {
-        selectedGameVersion = option.getAttribute('data-value');
-        selectedVersionSpan.textContent = option.textContent;
-
-        // Видалити клас selected з усіх опцій
-        optionElements.forEach(opt => opt.classList.remove('selected'));
-        // Додати клас selected до вибраної опції
-        option.classList.add('selected');
+        setSelectorVersion(option.getAttribute('data-value'));
 
         // Закрити селект
         customSelect.classList.remove('open');
@@ -41,6 +35,19 @@ optionElements.forEach(option => {
         await detectAndSetGamePath();
     });
 });
+
+// Оновити селектор на задану версію (без пошуку)
+function setSelectorVersion(version) {
+    selectedGameVersion = version;
+
+    optionElements.forEach(opt => {
+        const isMatch = opt.getAttribute('data-value') === version;
+        opt.classList.toggle('selected', isMatch);
+        if (isMatch) {
+            selectedVersionSpan.textContent = opt.textContent;
+        }
+    });
+}
 
 // Закрити селект при кліку поза ним
 document.addEventListener('click', (e) => {
@@ -65,7 +72,18 @@ async function detectAndSetGamePath() {
     gameDirInput.style.color = 'var(--color-text-label)';
 
     try {
-        const result = await window.electronAPI.detectGamePath(selectedGameVersion);
+        let result = await window.electronAPI.detectGamePath(selectedGameVersion);
+
+        // Якщо вибрану версію не знайдено - спробувати іншу доступну
+        if (!result || !result.path) {
+            const otherVersion = selectedGameVersion === 'dc' ? 'ds' : 'dc';
+            const otherResult = await window.electronAPI.detectGamePath(otherVersion);
+
+            if (otherResult && otherResult.path) {
+                setSelectorVersion(otherVersion);
+                result = otherResult;
+            }
+        }
 
         if (result && result.path) {
             selectedGameDir = result.path;
