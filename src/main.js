@@ -8,6 +8,9 @@ const { detectDeathStranding, listAllSteamGames } = require("./gameDetector");
 // На Steam/EGS файл лежить у data\ і існує оригінальним.
 // На Xbox Game Pass файл лежить у packed_GDK\ і створюється з нуля.
 const PATCH_ARCHIVE_NAME = "59b95a781c9170b0d13773766e27ad90.bin";
+// Відносний шлях до локалізованого .bin (Steam/EGS: лежить у data\).
+const LOCALIZED_BIN_RELATIVE = path.join("data", PATCH_ARCHIVE_NAME);
+const BACKUP_SUFFIX = ".bak";
 
 /**
  * Xbox Game Pass-теки мають packed_GDK\ замість data\.
@@ -20,48 +23,32 @@ function isXboxGameDir(gameDir) {
 /**
  * Створити junction `data` → `packed_GDK` у теці Xbox-гри.
  * Це дозволяє Decima Workshop та решті коду використовувати шлях
- * data\<archive>.bin без додаткових змін.
- * Повертає Promise, який резолвиться після успіху.
+ * data\<archive>.bin без додаткових змін. Використовуємо нативний
+ * fs.symlinkSync('junction'), щоб коректно працювали шляхи з пробілами.
  */
 function ensureXboxDataJunction(gameDir) {
-  return new Promise((resolve, reject) => {
-    const dataPath = path.join(gameDir, "data");
-    const packedPath = path.join(gameDir, "packed_GDK");
+  const dataPath = path.join(gameDir, "data");
+  const packedPath = path.join(gameDir, "packed_GDK");
 
-    if (fs.existsSync(dataPath)) {
-      console.log("data\\ already exists, skipping junction creation");
-      return resolve();
-    }
+  if (fs.existsSync(dataPath)) {
+    console.log("data\\ already exists, skipping junction creation");
+    return;
+  }
 
-    console.log(`Creating junction: ${dataPath} -> ${packedPath}`);
-    const child = spawn("cmd", ["/c", "mklink", "/J", dataPath, packedPath], {
-      windowsHide: true,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
-    let stderr = "";
-    child.stderr.on("data", (data) => { stderr += data.toString(); });
-    child.on("close", (code) => {
-      if (code === 0) {
-        console.log("Junction created successfully");
-        resolve();
-      } else {
-        reject(new Error(
-          `Не вдалося створити junction data → packed_GDK. ` +
-          `Запустіть українізатор від імені адміністратора. ` +
-          `Деталі: ${stderr.trim()}`
-        ));
-      }
-    });
-    child.on("error", (err) => reject(err));
-  });
+  console.log(`Creating junction: ${dataPath} -> ${packedPath}`);
+  try {
+    fs.symlinkSync(packedPath, dataPath, "junction");
+    console.log("Junction created successfully");
+  } catch (err) {
+    throw new Error(
+      `Не вдалося створити junction data → packed_GDK. ` +
+      `Запустіть українізатор від імені адміністратора. ` +
+      `Деталі: ${err.message}`
+    );
+  }
 }
 
 let mainWindow;
-
-// Відносний шлях до локалізованого .bin файлу (однаковий для DC та DS)
-const LOCALIZED_BIN_RELATIVE = path.join("data", "59b95a781c9170b0d13773766e27ad90.bin");
-const BACKUP_SUFFIX = ".bak";
 
 // Створення головного вікна
 function createWindow() {
@@ -84,23 +71,21 @@ function createWindow() {
 }
 
 // Розбір аргументів командного рядка (інтеграція зі сторонніми лаунчерами).
-// Підтримує /uninstall (action) та /silent (без вікна), сумісно з форматом,
-// який передає littlebit-launcher: ["/uninstall", "/SILENT", "/silent"].
+// Реагує на /uninstall (action), сумісно з форматом, який передає
+// littlebit-launcher: ["/uninstall", "/SILENT", "/silent"]. Прапор /silent
+// ігнорується (деінсталяція через CLI і так виконується без UI).
 // Опціонально приймає шлях до теки гри як позиційний аргумент.
 function parseCliArgs() {
   // У запакованому застосунку argv = [exe, ...args], у dev = [electron, script, ...args]
   const rawArgs = process.argv.slice(app.isPackaged ? 1 : 2);
 
   let uninstall = false;
-  let silent = false;
   let gameDir = null;
 
   for (const arg of rawArgs) {
     const flag = arg.toLowerCase().replace(/^--/, '/');
     if (flag === '/uninstall') {
       uninstall = true;
-    } else if (flag === '/silent' || flag === '/s') {
-      silent = true;
     } else if (!arg.startsWith('/') && !arg.startsWith('--')) {
       // Позиційний аргумент — шлях до теки гри
       try {
@@ -113,7 +98,7 @@ function parseCliArgs() {
     }
   }
 
-  return { uninstall, silent, gameDir };
+  return { uninstall, gameDir };
 }
 
 // Визначити теку гри для тихої деінсталяції, якщо її не передали аргументом.
@@ -242,6 +227,19 @@ function uninstallLocalizationAtPath(gameDir) {
     }
     console.log('Removing Xbox patch archive:', patchPath);
     fs.unlinkSync(patchPath);
+
+    // Прибрати junction data → packed_GDK, щоб тека повернулась у початковий стан.
+    // Видаляємо лише якщо це справді junction (а не реальна тека).
+    const dataJunction = path.join(gameDir, 'data');
+    try {
+      if (fs.existsSync(dataJunction) && fs.lstatSync(dataJunction).isSymbolicLink()) {
+        fs.rmdirSync(dataJunction);
+        console.log('Removed data junction');
+      }
+    } catch (err) {
+      console.warn('Could not remove data junction:', err.message);
+    }
+
     console.log('Xbox localization uninstalled successfully!');
     return;
   }
