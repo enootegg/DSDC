@@ -162,5 +162,6 @@ jobs:
           version: ${{ steps.version.outputs.version }}.${{ github.run_number }}
           archive: build/windows.zip
           steam-linux: build/linux.zip
-          status: completed
-          translation-progress: ${{ steps.version.outputs.progress }}
+          status: in-progress
+          translation-progress: 100
+          editing-progress: ${{ steps.version.outputs.progress }}
