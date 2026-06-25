@@ -1,9 +1,14 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
+const fs = require("fs");
 const { spawn } = require("child_process");
 const { detectDeathStranding, listAllSteamGames } = require("./gameDetector");
 
 let mainWindow;
+
+// Відносний шлях до локалізованого .bin файлу (однаковий для DC та DS)
+const LOCALIZED_BIN_RELATIVE = path.join("data", "59b95a781c9170b0d13773766e27ad90.bin");
+const BACKUP_SUFFIX = ".bak";
 
 // Створення головного вікна
 function createWindow() {
@@ -25,7 +30,92 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false); // Повністю вимкнути меню
 }
 
-app.whenReady().then(createWindow);
+// Розбір аргументів командного рядка (інтеграція зі сторонніми лаунчерами).
+// Підтримує /uninstall (action) та /silent (без вікна), сумісно з форматом,
+// який передає littlebit-launcher: ["/uninstall", "/SILENT", "/silent"].
+// Опціонально приймає шлях до теки гри як позиційний аргумент.
+function parseCliArgs() {
+  // У запакованому застосунку argv = [exe, ...args], у dev = [electron, script, ...args]
+  const rawArgs = process.argv.slice(app.isPackaged ? 1 : 2);
+
+  let uninstall = false;
+  let silent = false;
+  let gameDir = null;
+
+  for (const arg of rawArgs) {
+    const flag = arg.toLowerCase().replace(/^--/, '/');
+    if (flag === '/uninstall') {
+      uninstall = true;
+    } else if (flag === '/silent' || flag === '/s') {
+      silent = true;
+    } else if (!arg.startsWith('/') && !arg.startsWith('--')) {
+      // Позиційний аргумент — шлях до теки гри
+      try {
+        if (fs.existsSync(arg) && fs.statSync(arg).isDirectory()) {
+          gameDir = arg;
+        }
+      } catch {
+        // ігноруємо некоректні шляхи
+      }
+    }
+  }
+
+  return { uninstall, silent, gameDir };
+}
+
+// Визначити теку гри для тихої деінсталяції, якщо її не передали аргументом.
+// Перебирає обидві версії та обирає ту, де реально є бекап для відновлення.
+async function resolveUninstallGameDir() {
+  for (const version of ['dc', 'ds']) {
+    try {
+      const result = await detectDeathStranding(version);
+      if (result && result.path) {
+        const backupPath = path.join(result.path, LOCALIZED_BIN_RELATIVE) + BACKUP_SUFFIX;
+        if (fs.existsSync(backupPath)) {
+          return result.path;
+        }
+      }
+    } catch (error) {
+      console.error(`Detection error for ${version}:`, error.message);
+    }
+  }
+  return null;
+}
+
+// Тиха деінсталяція через CLI. Повертає код виходу (0 — успіх, 1 — помилка).
+async function runCliUninstall(cli) {
+  try {
+    let gameDir = cli.gameDir;
+    if (!gameDir) {
+      console.log('No game directory provided, auto-detecting...');
+      gameDir = await resolveUninstallGameDir();
+    }
+
+    if (!gameDir) {
+      console.error('Game with installed localization not found.');
+      return 1;
+    }
+
+    uninstallLocalizationAtPath(gameDir);
+    return 0;
+  } catch (error) {
+    console.error('CLI uninstall failed:', error.message);
+    return 1;
+  }
+}
+
+app.whenReady().then(async () => {
+  const cli = parseCliArgs();
+
+  if (cli.uninstall) {
+    // Режим інтеграції з лаунчером: виконати деінсталяцію без UI та вийти
+    const exitCode = await runCliUninstall(cli);
+    app.exit(exitCode);
+    return;
+  }
+
+  createWindow();
+});
 
 // Закрити додаток коли всі вікна закриті (крім macOS)
 app.on("window-all-closed", () => {
@@ -75,34 +165,38 @@ ipcMain.handle("check-backup", async (event, gameDir) => {
   return hasBackup;
 });
 
+// Спільна логіка деінсталяції: відновлює оригінальний .bin з бекапу.
+// Кидає помилку, якщо бекап не знайдено.
+function uninstallLocalizationAtPath(gameDir) {
+  const binPath = path.join(gameDir, LOCALIZED_BIN_RELATIVE);
+  const backupPath = binPath + BACKUP_SUFFIX;
+
+  console.log('Uninstalling localization...');
+  console.log('Binary path:', binPath);
+  console.log('Backup path:', backupPath);
+
+  // Перевірити чи існує бекап
+  if (!fs.existsSync(backupPath)) {
+    throw new Error('Файл бекапу не знайдено. Неможливо відновити оригінал.');
+  }
+
+  // Видалити поточний .bin файл (з перекладом)
+  if (fs.existsSync(binPath)) {
+    console.log('Removing localized file...');
+    fs.unlinkSync(binPath);
+  }
+
+  // Перейменувати .bak на .bin (відновити оригінал)
+  console.log('Restoring original file from backup...');
+  fs.renameSync(backupPath, binPath);
+
+  console.log('Localization uninstalled successfully!');
+}
+
 // Деінсталяція українізації (відновлення оригіналу)
 ipcMain.handle("uninstall-localization", async (event, gameDir) => {
-  const fs = require('fs');
-
   try {
-    const binPath = path.join(gameDir, 'data', '59b95a781c9170b0d13773766e27ad90.bin');
-    const backupPath = path.join(gameDir, 'data', '59b95a781c9170b0d13773766e27ad90.bin.bak');
-
-    console.log('Uninstalling localization...');
-    console.log('Binary path:', binPath);
-    console.log('Backup path:', backupPath);
-
-    // Перевірити чи існує бекап
-    if (!fs.existsSync(backupPath)) {
-      throw new Error('Файл бекапу не знайдено. Неможливо відновити оригінал.');
-    }
-
-    // Видалити поточний .bin файл (з перекладом)
-    if (fs.existsSync(binPath)) {
-      console.log('Removing localized file...');
-      fs.unlinkSync(binPath);
-    }
-
-    // Перейменувати .bak на .bin (відновити оригінал)
-    console.log('Restoring original file from backup...');
-    fs.renameSync(backupPath, binPath);
-
-    console.log('Localization uninstalled successfully!');
+    uninstallLocalizationAtPath(gameDir);
     return { success: true };
   } catch (error) {
     console.error('Uninstall error:', error);
