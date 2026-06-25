@@ -157,7 +157,7 @@ jobs:
         with:
           api-token: ${{ secrets.LBK_TOKEN }}
           game-id: ${{ vars.LBK_GAME_ID }}
-          version: ${{ steps.version.outputs.version }}
+          version: ${{ steps.version.outputs.version }}.${{ github.run_number }}
           archive: build/windows.zip
           steam-linux: build/linux.zip
           status: completed
