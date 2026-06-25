@@ -149,8 +149,10 @@ jobs:
       - name: Package installers into archives
         run: |
           mkdir -p build
-          (cd artifacts/dist-Windows && zip -r "$GITHUB_WORKSPACE/build/windows.zip" .)
-          (cd artifacts/dist-Linux && zip -r "$GITHUB_WORKSPACE/build/linux.zip" .)
+          mv artifacts/dist-Windows/*.exe "artifacts/dist-Windows/Death.Stranding.exe"
+          mv artifacts/dist-Linux/*.AppImage "artifacts/dist-Linux/Death.Stranding.AppImage"
+          (cd artifacts/dist-Windows && zip "$GITHUB_WORKSPACE/build/windows.zip" "Death.Stranding.exe")
+          (cd artifacts/dist-Linux && zip "$GITHUB_WORKSPACE/build/linux.zip" "Death.Stranding.AppImage")
 
       - name: Deploy to LBK Launcher
         uses: Vadko/lbk-deploy-translation@v1
