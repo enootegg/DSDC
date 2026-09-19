@@ -58,16 +58,27 @@ async function main() {
   }
 
   const progress = body.data[0].data.approvalProgress;
-  const version = `0.${progress}.0`;
+  const version = progress >= 100 ? '1.0.0' : `0.${progress}.0`;
+  const displayVersion = version.split('.').slice(0, 2).join('.');
 
   console.log(`Approval progress: ${progress}% → version: ${version}`);
 
-  const pkgPath = path.join(__dirname, '..', 'package.json');
+  const root = path.join(__dirname, '..');
+  const pkgPath = path.join(root, 'package.json');
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
   pkg.version = version;
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
 
   console.log(`Updated package.json version to ${version}`);
+
+  // Progress is written separately: it can no longer be derived from the
+  // version number once 100% maps to 1.0 instead of 0.100.
+  const infoDir = path.join(root, 'version-info');
+  fs.mkdirSync(infoDir, { recursive: true });
+  fs.writeFileSync(path.join(infoDir, 'version.txt'), `${displayVersion}\n`, 'utf8');
+  fs.writeFileSync(path.join(infoDir, 'progress.txt'), `${progress}\n`, 'utf8');
+
+  console.log(`Wrote version-info: version=${displayVersion}, progress=${progress}`);
 }
 
 main().catch((err) => {

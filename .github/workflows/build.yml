@@ -70,6 +70,7 @@ jobs:
         with:
           name: version-info
           path: version-info/
+          if-no-files-found: error
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -92,6 +93,8 @@ jobs:
       - name: Read version info
         id: version
         run: |
+          test -s artifacts/version-info/version.txt
+          test -s artifacts/version-info/progress.txt
           echo "version=$(cat artifacts/version-info/version.txt)" >> "$GITHUB_OUTPUT"
           echo "progress=$(cat artifacts/version-info/progress.txt)" >> "$GITHUB_OUTPUT"
           echo "date=$(date +'%d.%m.%Y')" >> "$GITHUB_OUTPUT"
@@ -128,6 +131,8 @@ jobs:
       - name: Read version info
         id: version
         run: |
+          test -s artifacts/version-info/version.txt
+          test -s artifacts/version-info/progress.txt
           echo "version=$(cat artifacts/version-info/version.txt)" >> "$GITHUB_OUTPUT"
           echo "progress=$(cat artifacts/version-info/progress.txt)" >> "$GITHUB_OUTPUT"
 
