@@ -1,6 +1,8 @@
 /**
  * Fetches Crowdin approval progress and writes the version to package.json.
- * Version format: "0.{approvalProgress}" (e.g. 40% → "0.40")
+ * Version format: "0.{approvalProgress}" (e.g. 40% → "0.40"), except a fully
+ * approved translation (100%) which becomes "1.0".
+ * Also writes version-info/{version,progress}.txt for the CI release step.
  * Run before electron-builder.
  */
 

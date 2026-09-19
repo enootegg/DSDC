@@ -17,3 +17,5 @@ resources/Sources/
 resources/Sources_DSDC_Only/
 
 .idea
+# Генерується скриптом set-version.js під час збірки
+version-info/

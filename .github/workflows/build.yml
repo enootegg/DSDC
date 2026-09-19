@@ -1,12 +1,7 @@
 name: Build Installer
 
 on:
-  schedule:
-    - cron: "0 6 */3 * *" # Кожні 3 дні о 6:00 UTC
-  workflow_dispatch: # Ручний запуск одним кліком
-  push:
-    branches:
-      - main
+  workflow_dispatch: # Тільки ручний запуск одним кліком
 
 jobs:
   build:
@@ -69,16 +64,6 @@ jobs:
       - name: Build installer
         run: npx electron-builder --${{ matrix.platform }} --publish never
 
-      - name: Save version info
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          FULL=$(node -p "require('./package.json').version")
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$FULL"
-          mkdir -p version-info
-          echo "${MAJOR}.${MINOR}" > version-info/version.txt
-          echo "${MINOR}" > version-info/progress.txt
-
       - name: Upload version info
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
@@ -120,7 +105,7 @@ jobs:
           tag_name: v${{ steps.version.outputs.version }}
           name: "Українізатор Death Stranding v${{ steps.version.outputs.version }}"
           body: |
-            Автоматична збірка від ${{ steps.version.outputs.date }}.
+            Збірка від ${{ steps.version.outputs.date }}.
             Версія відповідає **${{ steps.version.outputs.progress }}%** затверджених перекладів на Crowdin.
           files: |
             artifacts/dist-Windows/*.exe
